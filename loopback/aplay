@@ -1,0 +1,13 @@
+#! /bin/bash
+exec aplay \
+	-D hw:CARD=snddaudio,DEV=0 -M \
+	-r 192000 \
+	--buffer-size=192000 \
+	--period-size=192 \
+	-c 2 \
+	-f S16_LE \
+	-t raw \
+	--disable-resample \
+	--disable-channels \
+	--disable-format \
+	--disable-softvol
