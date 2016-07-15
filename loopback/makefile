@@ -1,4 +1,4 @@
-BIN:=loopback counter counter_in
+BIN:=loopback reader writer
 
 all: ${BIN}
 

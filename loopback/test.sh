@@ -5,9 +5,9 @@
 
 # One process input, one process output
 #  Start writeron the backgroud
-./counter | ./aplay &
+./writer | ./aplay &
 #  and reader on the foreground
-./arecord | ./counter_in 
+./arecord | ./reader 
 #  Kills the writer when reader is exitted.
-kill `pidof counter`
+kill `pidof writer`
 kill `pidof aplay`

@@ -1,19 +1,27 @@
+#include <iostream>
+#include <iomanip>
 #include <cstring>
 #include <stdint.h>
 #include <unistd.h>
 
 using namespace std;
 
-inline uint32_t step(uint32_t x) {
+void full_write(int fd, void *p, size_t sz) {
+	size_t s = 0;
+	while (s < sz) s += write(fd, (uint8_t*)p+s, sz-s);
+}
+void full_read(int fd, void *p, size_t sz) {
+	size_t s = 0;
+	while (s < sz) s += read(fd, (uint8_t*)p+s, sz-s);
+}
+
+uint32_t step(uint32_t x) {
 	static uint32_t y=0, div=1;
 	y++;
 	div--;
 	if (!div) {
 		div = 192000;
-		x = y-x;
-		write(STDERR_FILENO, &x, sizeof(uint32_t));
-		x = 0x55AA55AA;
-		write(STDERR_FILENO, &x, sizeof(uint32_t));
+		cerr << y-x << endl;
 	}
 	return y;
 }
@@ -23,23 +31,24 @@ int main() {
 	
 	// Byte offset fixer
 	memset(buff, 0, sizeof(buff));
-	for (int i=0; i<100; ++i)
-		write(STDOUT_FILENO, buff, sizeof(buff));
-	read(STDIN_FILENO, buff, sizeof(buff));
-	memset(buff, 0xFF, sizeof(buff));
-	for (int i=0; i<100; ++i)
-		write(STDOUT_FILENO, buff, sizeof(buff));
+	buff[100] = 0xFFFFFFFF;
+	full_write(STDOUT_FILENO, buff, sizeof(buff));
+	full_write(STDOUT_FILENO, buff, sizeof(buff));
+	full_write(STDOUT_FILENO, buff, sizeof(buff));
+	buff[100] = 0;
+	full_write(STDOUT_FILENO, buff, sizeof(buff));
+	full_write(STDOUT_FILENO, buff, sizeof(buff));
 	if (true) {
 		uint32_t w;
-		do read(STDIN_FILENO, &w, sizeof(w)); while ( w); // Remove garbage
-		do read(STDIN_FILENO, &w, sizeof(w)); while (!w); // Remove zeroed buffers
+		do full_read(STDIN_FILENO, &w, sizeof(w)); while ( w); // Remove garbage
+		do full_read(STDIN_FILENO, &w, sizeof(w)); while (!w); // Remove zeroed buffers
 		switch (w) {
-			case 0x000000FFU: read(STDIN_FILENO, &w, 3); break;
-			case 0x0000FFFFU: read(STDIN_FILENO, &w, 2); break;
-			case 0x00FFFFFFU: read(STDIN_FILENO, &w, 1); break;
+			case 0xFF000000U: read(STDIN_FILENO, &w, 3); break;
+			case 0xFFFF0000U: read(STDIN_FILENO, &w, 2); break;
+			case 0xFFFFFF00U: read(STDIN_FILENO, &w, 1); break;
 			case 0xFFFFFFFFU: break;
 			default:
-				write(STDERR_FILENO, &w, sizeof(w));
+				cerr << hex << w << endl;
 				return 1;
 		}
 	}
