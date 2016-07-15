@@ -1,7 +1,7 @@
 #! /bin/bash
 exec arecord \
 	-D hw:CARD=snddaudio,DEV=0 -M \
-	-r 192000 \
+	-r 48000 \
 	--buffer-size=192000 \
 	--period-size=192 \
 	-c 2 \

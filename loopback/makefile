@@ -1,10 +1,6 @@
-all: loopback counter counter_in
+BIN:=loopback counter counter_in
+
+all: ${BIN}
 
 clean:
-	rm -f loopback
-
-loopback: loopback.cpp
-	g++ -O2 -o loopback loopback.cpp
-
-counter: counter.cpp
-	g++ -O2 -o counter counter.cpp
+	rm -f ${BIN}

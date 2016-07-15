@@ -6,6 +6,15 @@
 
 using namespace std;
 
+void full_write(int fd, void *p, size_t sz) {
+	size_t s = 0;
+	while (s < sz) s += write(fd, (uint8_t*)p+s, sz-s);
+}
+void full_read(int fd, void *p, size_t sz) {
+	size_t s = 0;
+	while (s < sz) s += read(fd, (uint8_t*)p+s, sz-s);
+}
+
 #define NOT_FOUND uint32_t(~0ULL)
 uint32_t find_tag(uint8_t *p, uint32_t sz) {
 	for (uint32_t o=0; o<sz-4; ++o) {
@@ -22,9 +31,9 @@ int main() {
 	} buff;
 	uint32_t n=0;
 	
-	read(STDIN_FILENO, buff.b, 2);
+	full_read(STDIN_FILENO, buff.b, 2);
 	while (true) {
-		read(STDIN_FILENO, buff.b, sizeof(buff));
+		full_read(STDIN_FILENO, buff.b, sizeof(buff));
 		uint32_t off = find_tag(buff.b, sizeof(buff));
 		if (off == NOT_FOUND) {
 			cout << "?" << flush;
@@ -33,7 +42,7 @@ int main() {
 		if (off) {
 			uint32_t validbytes = sizeof(buff)-off;
 			memmove(buff.b, buff.b+off, validbytes);
-			read(STDIN_FILENO, buff.b+validbytes, sizeof(buff)-validbytes);
+			full_read(STDIN_FILENO, buff.b+validbytes, sizeof(buff)-validbytes);
 		}
 		
 		cout
